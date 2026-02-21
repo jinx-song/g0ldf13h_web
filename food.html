@@ -59,6 +59,16 @@
   ></script>
   <script>
     (function () {
+      const SHEET_CSV_URL =
+        "https://docs.google.com/spreadsheets/d/1-1samCRAdvP9G9tHhA3aOvJVfPgI6yLpfI6aRMigQzc/export?format=csv&gid=0";
+
+      const cityCoords = {
+        "USA|Seattle": [47.6062, -122.3321],
+        "USA|Boston": [42.3601, -71.0589],
+        "USA|Milwaukee": [43.0389, -87.9065],
+        "USA|Bellevue": [47.6101, -122.2015],
+      };
+
       const map = L.map("food-map", {
         scrollWheelZoom: false,
       }).setView([42.5, -95], 3.5);
@@ -70,38 +80,87 @@
 
       let allRestaurants = [];
       let markersLayer = L.layerGroup().addTo(map);
+      let filterListenersAttached = false;
+
+      function parseCsvLine(line) {
+        const out = [];
+        let cell = "";
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const c = line[i];
+          if (c === '"') {
+            inQuotes = !inQuotes;
+          } else if ((c === "," && !inQuotes) || (c === "\r" && !inQuotes)) {
+            out.push(cell.trim());
+            cell = "";
+          } else if (c !== "\r") {
+            cell += c;
+          }
+        }
+        out.push(cell.trim());
+        return out;
+      }
+
+      function parseCsv(csvText) {
+        const lines = csvText.trim().split(/\n/);
+        const rows = [];
+        for (let i = 1; i < lines.length; i++) {
+          const cols = parseCsvLine(lines[i]);
+          const name = (cols[0] || "").trim();
+          if (!name) continue;
+          rows.push({
+            name,
+            country: (cols[1] || "").trim(),
+            city: (cols[2] || "").trim(),
+            address: (cols[3] || "").trim(),
+            cuisine: (cols[4] || "").trim(),
+            cuisine_type: (cols[5] || "").trim(),
+            average_price: (cols[6] || "").trim(),
+          });
+        }
+        return rows;
+      }
+
+      function mergeWithGeocoded(sheetRows, geocodedJson) {
+        const byKey = {};
+        (geocodedJson || []).forEach((r) => {
+          const key = (r.name || "") + "|" + (r.address || r.city || "");
+          byKey[key] = r;
+        });
+        return sheetRows.map((row) => {
+          const key1 = (row.name || "") + "|" + (row.address || "");
+          const key2 = (row.name || "") + "|" + (row.city || "");
+          const cached = byKey[key1] || byKey[key2];
+          const cityKey = (row.country || "") + "|" + (row.city || "");
+          const fallback = cityCoords[cityKey];
+          const lat = cached ? cached.lat : (fallback ? fallback[0] : null);
+          const lng = cached ? cached.lng : (fallback ? fallback[1] : null);
+          if (lat == null || lng == null) return null;
+          return {
+            ...row,
+            lat,
+            lng,
+          };
+        }).filter(Boolean);
+      }
 
       function uniqueSorted(values) {
         return [...new Set(values)].filter(Boolean).sort((a, b) => String(a).localeCompare(b));
       }
 
       function fillFilters(restaurants) {
-        const cuisines = uniqueSorted(restaurants.map((r) => r.cuisine));
-        const types = uniqueSorted(restaurants.map((r) => r.cuisine_type));
-        const prices = uniqueSorted(restaurants.map((r) => r.average_price));
-
         const selCuisine = document.getElementById("filter-cuisine");
         const selType = document.getElementById("filter-cuisine-type");
         const selPrice = document.getElementById("filter-price");
-
-        cuisines.forEach((c) => {
-          const opt = document.createElement("option");
-          opt.value = c;
-          opt.textContent = c;
-          selCuisine.appendChild(opt);
-        });
-        types.forEach((t) => {
-          const opt = document.createElement("option");
-          opt.value = t;
-          opt.textContent = t;
-          selType.appendChild(opt);
-        });
-        prices.forEach((p) => {
-          const opt = document.createElement("option");
-          opt.value = p;
-          opt.textContent = p;
-          selPrice.appendChild(opt);
-        });
+        selCuisine.innerHTML = '<option value="">All</option>';
+        selType.innerHTML = '<option value="">All</option>';
+        selPrice.innerHTML = '<option value="">All</option>';
+        const cuisines = uniqueSorted(restaurants.map((r) => r.cuisine));
+        const types = uniqueSorted(restaurants.map((r) => r.cuisine_type));
+        const prices = uniqueSorted(restaurants.map((r) => r.average_price));
+        cuisines.forEach((c) => { const o = document.createElement("option"); o.value = c; o.textContent = c; selCuisine.appendChild(o); });
+        types.forEach((t) => { const o = document.createElement("option"); o.value = t; o.textContent = t; selType.appendChild(o); });
+        prices.forEach((p) => { const o = document.createElement("option"); o.value = p; o.textContent = p; selPrice.appendChild(o); });
       }
 
       function matchesFilters(r, cuisine, cuisineType, price) {
@@ -125,11 +184,7 @@
         const cuisine = document.getElementById("filter-cuisine").value;
         const cuisineType = document.getElementById("filter-cuisine-type").value;
         const price = document.getElementById("filter-price").value;
-
-        const filtered = allRestaurants.filter((r) =>
-          matchesFilters(r, cuisine, cuisineType, price)
-        );
-
+        const filtered = allRestaurants.filter((r) => matchesFilters(r, cuisine, cuisineType, price));
         markersLayer.clearLayers();
         const bounds = [];
         filtered.forEach((r) => {
@@ -137,27 +192,38 @@
           marker.bindPopup(popupContent(r));
           bounds.push([r.lat, r.lng]);
         });
-        if (bounds.length) {
-          map.fitBounds(bounds, { padding: [32, 32] });
+        if (bounds.length) map.fitBounds(bounds, { padding: [32, 32] });
+      }
+
+      function onDataReady(restaurants) {
+        allRestaurants = restaurants;
+        fillFilters(restaurants);
+        applyFilters();
+        if (!filterListenersAttached) {
+          filterListenersAttached = true;
+          document.getElementById("filter-cuisine").addEventListener("change", applyFilters);
+          document.getElementById("filter-cuisine-type").addEventListener("change", applyFilters);
+          document.getElementById("filter-price").addEventListener("change", applyFilters);
         }
       }
 
       function loadRestaurants() {
-        fetch("data/restaurants.json")
-          .then((res) => {
-            if (!res.ok) throw new Error("Unable to load restaurant data");
-            return res.json();
+        Promise.all([
+          fetch(SHEET_CSV_URL).then((r) => r.ok ? r.text() : Promise.reject(new Error("Sheet failed"))),
+          fetch("data/restaurants.json").then((r) => r.ok ? r.json() : []).catch(() => []),
+        ])
+          .then(([csvText, geocoded]) => {
+            const sheetRows = parseCsv(csvText);
+            const merged = mergeWithGeocoded(sheetRows, geocoded);
+            onDataReady(merged);
           })
-          .then((restaurants) => {
-            allRestaurants = restaurants;
-            fillFilters(restaurants);
-            applyFilters();
-
-            document.getElementById("filter-cuisine").addEventListener("change", applyFilters);
-            document.getElementById("filter-cuisine-type").addEventListener("change", applyFilters);
-            document.getElementById("filter-price").addEventListener("change", applyFilters);
-          })
-          .catch((err) => console.error(err));
+          .catch((err) => {
+            console.error(err);
+            fetch("data/restaurants.json")
+              .then((r) => r.json())
+              .then((json) => onDataReady(json))
+              .catch((e) => console.error(e));
+          });
       }
 
       loadRestaurants();
