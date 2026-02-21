@@ -1,10 +1,101 @@
 [
-  {"name": "Golmok Market Bar", "country": "USA", "city": "Seattle", "cuisine": "", "cuisine_type": "", "average_price": "", "address": "", "lat": 47.6062, "lng": -122.3321},
-  {"name": "YGF Malatang", "country": "USA", "city": "Boston", "cuisine": "", "cuisine_type": "", "average_price": "", "address": "", "lat": 42.3601, "lng": -71.0589},
-  {"name": "Crazy Good Kitchen", "country": "USA", "city": "Boston", "cuisine": "", "cuisine_type": "", "average_price": "", "address": "", "lat": 42.3601, "lng": -71.0589},
-  {"name": "Sen Noodle Bar", "country": "USA", "city": "Seattle", "cuisine": "", "cuisine_type": "", "average_price": "", "address": "", "lat": 47.6062, "lng": -122.3321},
-  {"name": "Desi Pizza Kitchen", "country": "USA", "city": "Seattle", "cuisine": "", "cuisine_type": "", "average_price": "", "address": "", "lat": 47.6062, "lng": -122.3321},
-  {"name": "Kopp's Frozen Custard", "country": "USA", "city": "Milwaukee", "cuisine": "", "cuisine_type": "", "average_price": "", "address": "", "lat": 43.0389, "lng": -87.9065},
-  {"name": "Hai Di Lao", "country": "USA", "city": "Bellevue", "cuisine": "", "cuisine_type": "", "average_price": "", "address": "", "lat": 47.6101, "lng": -122.2015},
-  {"name": "Sunny Girl", "country": "USA", "city": "Boston", "cuisine": "", "cuisine_type": "", "average_price": "", "address": "", "lat": 42.3601, "lng": -71.0589}
+  {
+    "name": "Restaurant Name",
+    "country": "Country",
+    "city": "City",
+    "cuisine": "Cuisine",
+    "cuisine_type": "Cuisine Type",
+    "average_price": "Average Price",
+    "address": "Address",
+    "lat": 43.2616855,
+    "lng": -2.937186
+  },
+  {
+    "name": "Golmok Market Bar",
+    "country": "USA",
+    "city": "Seattle",
+    "cuisine": "Korean",
+    "cuisine_type": "",
+    "average_price": "$20 - $50",
+    "address": "706 E Pike St, Seattle, WA 98122",
+    "lat": 47.6142682,
+    "lng": -122.3227204
+  },
+  {
+    "name": "YGF Malatang",
+    "country": "USA",
+    "city": "Boston",
+    "cuisine": "",
+    "cuisine_type": "",
+    "average_price": "$0 - $10",
+    "address": "137 Massachusetts Ave, Boston, MA 02215",
+    "lat": 42.3469853,
+    "lng": -71.0878076
+  },
+  {
+    "name": "Crazy Good Kitchen",
+    "country": "USA",
+    "city": "Boston",
+    "cuisine": "",
+    "cuisine_type": "",
+    "average_price": "$20 - $50",
+    "address": "268 Newbury St, Boston, MA 02116",
+    "lat": 42.3491587,
+    "lng": -71.0832679
+  },
+  {
+    "name": "Sen Noodle Bar",
+    "country": "USA",
+    "city": "Seattle",
+    "cuisine": "SE Asian",
+    "cuisine_type": "Noodles & Soups",
+    "average_price": "$0 - $10",
+    "address": "2307 NW Market St, Seattle, WA 98107",
+    "lat": 47.6685293,
+    "lng": -122.3865657
+  },
+  {
+    "name": "Desi Pizza Kitchen",
+    "country": "USA",
+    "city": "Seattle",
+    "cuisine": "",
+    "cuisine_type": "",
+    "average_price": "$0 - $10",
+    "address": "2115 Queen Anne Ave N, Seattle, WA 98109",
+    "lat": 47.637716,
+    "lng": -122.3571242
+  },
+  {
+    "name": "Kopp's Frozen Custard",
+    "country": "USA",
+    "city": "Milwaukee",
+    "cuisine": "",
+    "cuisine_type": "",
+    "average_price": "$0 - $10",
+    "address": "5373 N Port Washington Rd, Glendale, WI 53217",
+    "lat": 43.1146725,
+    "lng": -87.9172902
+  },
+  {
+    "name": "Hai Di Lao",
+    "country": "USA",
+    "city": "Bellevue",
+    "cuisine": "",
+    "cuisine_type": "",
+    "average_price": "$50 - $100",
+    "address": "188 106th Ave NE Suite #210, Bellevue, WA 98004",
+    "lat": 47.6101,
+    "lng": -122.2015
+  },
+  {
+    "name": "Sunny Girl",
+    "country": "USA",
+    "city": "Boston",
+    "cuisine": "",
+    "cuisine_type": "",
+    "average_price": "$0 - $10",
+    "address": "252 Commercial St, Boston, MA 02109",
+    "lat": 42.3636758,
+    "lng": -71.0514676
+  }
 ]

@@ -100,13 +100,22 @@ def _nominatim_geocode(query: str):
 
 
 def geocode_restaurant(row):
-    """Use full address if present, otherwise city/country."""
+    """Geocode by full address (column D) for actual location; fallback to city/country."""
     address = (row.get("address") or "").strip()
+    city = (row.get("city") or "").strip()
+    country = (row.get("country") or "").strip()
     if address:
-        coords = _nominatim_geocode(address)
+        # Build full query so Nominatim can resolve to actual location (e.g. "123 Main St, Seattle, USA")
+        parts = [address]
+        if city:
+            parts.append(city)
+        if country:
+            parts.append(country)
+        query = ", ".join(parts)
+        coords = _nominatim_geocode(query)
         if coords:
             return coords
-    return geocode_city(row.get("country", ""), row.get("city", ""))
+    return geocode_city(country, city)
 
 
 def build_restaurants():
