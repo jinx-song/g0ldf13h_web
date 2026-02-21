@@ -7,13 +7,8 @@
     "cuisine_type": "Cuisine Type",
     "average_price": "Average Price",
     "address": "Address",
-<<<<<<< HEAD
     "lat": 43.2616855,
     "lng": -2.937186
-=======
-    "lat": 52.5055081,
-    "lng": 13.3356998
->>>>>>> 933ccb5542c6c1915146cc8fe7e97256d7f84282
   },
   {
     "name": "Golmok Market Bar",
