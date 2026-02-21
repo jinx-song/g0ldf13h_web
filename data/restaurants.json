@@ -1,0 +1,10 @@
+[
+  {"name": "Golmok Market Bar", "country": "USA", "city": "Seattle", "lat": 47.6062, "lng": -122.3321},
+  {"name": "YGF Malatang", "country": "USA", "city": "Boston", "lat": 42.3601, "lng": -71.0589},
+  {"name": "Crazy Good Kitchen", "country": "USA", "city": "Boston", "lat": 42.3601, "lng": -71.0589},
+  {"name": "Sen Noodle Bar", "country": "USA", "city": "Seattle", "lat": 47.6062, "lng": -122.3321},
+  {"name": "Desi Pizza Kitchen", "country": "USA", "city": "Seattle", "lat": 47.6062, "lng": -122.3321},
+  {"name": "Kopp's Frozen Custard", "country": "USA", "city": "Milwaukee", "lat": 43.0389, "lng": -87.9065},
+  {"name": "Hai Di Lao", "country": "USA", "city": "Bellevue", "lat": 47.6101, "lng": -122.2015},
+  {"name": "Sunny Girl", "country": "USA", "city": "Boston", "lat": 42.3601, "lng": -71.0589}
+]

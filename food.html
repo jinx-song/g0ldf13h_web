@@ -38,16 +38,6 @@
   ></script>
   <script>
     (function () {
-      const SHEET_CSV_URL =
-        "https://docs.google.com/spreadsheets/d/1-1samCRAdvP9G9tHhA3aOvJVfPgI6yLpfI6aRMigQzc/export?format=csv&gid=0";
-
-      const cityCoords = {
-        "USA|Seattle": [47.6062, -122.3321],
-        "USA|Boston": [42.3601, -71.0589],
-        "USA|Milwaukee": [43.0389, -87.9065],
-        "USA|Bellevue": [47.6101, -122.2015],
-      };
-
       const map = L.map("food-map", {
         scrollWheelZoom: false,
       }).setView([42.5, -95], 3.5);
@@ -57,50 +47,29 @@
         attribution: "&copy; OpenStreetMap contributors",
       }).addTo(map);
 
-      function parseCsv(csv) {
-        const lines = csv.trim().split(/\r?\n/);
-        if (!lines.length) return [];
-        const rows = [];
-        for (let i = 1; i < lines.length; i++) {
-          const line = lines[i].trim();
-          if (!line) continue;
-          const cols = line.split(",");
-          const [name, country, city] = cols.map((c) => c.trim());
-          if (!name) continue;
-          rows.push({ name, country, city });
-        }
-        return rows;
-      }
-
-      async function loadRestaurants() {
-        try {
-          const res = await fetch(SHEET_CSV_URL);
-          if (!res.ok) throw new Error("Unable to load spreadsheet");
-          const text = await res.text();
-          const rows = parseCsv(text);
-
-          const bounds = [];
-
-          rows.forEach((row) => {
-            const key = (row.country || "") + "|" + (row.city || "");
-            const coords = cityCoords[key];
-            if (!coords) return;
-            const marker = L.marker(coords).addTo(map);
-            marker.bindPopup(
-              "<strong>" +
-                row.name +
-                "</strong><br>" +
-                [row.city, row.country].filter(Boolean).join(", ")
-            );
-            bounds.push(coords);
-          });
-
-          if (bounds.length) {
-            map.fitBounds(bounds, { padding: [32, 32] });
-          }
-        } catch (err) {
-          console.error(err);
-        }
+      function loadRestaurants() {
+        fetch("data/restaurants.json")
+          .then((res) => {
+            if (!res.ok) throw new Error("Unable to load restaurant data");
+            return res.json();
+          })
+          .then((restaurants) => {
+            const bounds = [];
+            restaurants.forEach((r) => {
+              const marker = L.marker([r.lat, r.lng]).addTo(map);
+              marker.bindPopup(
+                "<strong>" +
+                  r.name +
+                  "</strong><br>" +
+                  [r.city, r.country].filter(Boolean).join(", ")
+              );
+              bounds.push([r.lat, r.lng]);
+            });
+            if (bounds.length) {
+              map.fitBounds(bounds, { padding: [32, 32] });
+            }
+          })
+          .catch((err) => console.error(err));
       }
 
       loadRestaurants();
