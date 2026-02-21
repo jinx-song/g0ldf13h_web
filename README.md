@@ -2,6 +2,8 @@
 
 Food & travel content site — landing page plus Food and Travel sections.
 
+**Website:** [https://jinx-song.github.io/g0ldf13h_web/](https://jinx-song.github.io/g0ldf13h_web/)
+
 ## Run locally
 
 Open `index.html` in a browser, or serve the folder (e.g. `python3 -m http.server 8000`) and visit `http://localhost:8000`.
