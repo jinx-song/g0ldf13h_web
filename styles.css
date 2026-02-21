@@ -168,6 +168,42 @@ a {
   height: 420px;
 }
 
+.map-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.map-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.filter-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.map-filters select {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: var(--card);
+  color: var(--ink);
+  min-width: 10rem;
+}
+
+.map-filters select:focus {
+  outline: none;
+  border-color: var(--accent-food);
+}
+
 @media (max-width: 600px) {
   .food-page #food-map {
     height: 320px;

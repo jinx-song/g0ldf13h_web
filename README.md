@@ -24,9 +24,11 @@ You can share that URL as the site’s “domain” (e.g. in your profile or lin
 
 ## Restaurant map (Python)
 
-The Food page map is driven by **Python**: the script `scripts/fetch_restaurants.py` fetches the [Goldfish restaurants spreadsheet](https://docs.google.com/spreadsheets/d/1-1samCRAdvP9G9tHhA3aOvJVfPgI6yLpfI6aRMigQzc/edit?gid=0#gid=0), geocodes each row (city/country), and writes `data/restaurants.json`. The site loads that JSON and plots markers with Leaflet.
+The Food page map is driven by **Python**: the script `scripts/fetch_restaurants.py` fetches the [Goldfish restaurants spreadsheet](https://docs.google.com/spreadsheets/d/1-1samCRAdvP9G9tHhA3aOvJVfPgI6yLpfI6aRMigQzc/edit?gid=0#gid=0), geocodes each row, and writes `data/restaurants.json`. The site loads that JSON and plots markers with Leaflet.
+
+**Spreadsheet columns:** A = Name, B = Country, C = City, **D = Address**, E = Cuisine, F = Cuisine type, G = Average price. The script geocodes **Address** (column D) first for an exact pin; if missing or geocoding fails, it falls back to city/country.
 
 - **Update the map manually:** from the repo root run  
   `python3 scripts/fetch_restaurants.py`  
   then commit and push `data/restaurants.json` if it changed.
-- **Auto-update:** a GitHub Action runs every 6 hours and on pushes that touch the script or workflow; it regenerates `data/restaurants.json` and commits it when the spreadsheet has new or changed rows. New cities are geocoded via OpenStreetMap Nominatim (rate-limited).
+- **Auto-update:** a GitHub Action runs every 6 hours and on pushes that touch the script or workflow; it regenerates `data/restaurants.json` and commits it when the spreadsheet has new or changed rows. New cities/addresses are geocoded via OpenStreetMap Nominatim (rate-limited).

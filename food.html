@@ -28,6 +28,27 @@
       <h2>Goldfish restaurant map</h2>
       <p>This interactive map is populated directly from our shared <a href="https://docs.google.com/spreadsheets/d/1-1samCRAdvP9G9tHhA3aOvJVfPgI6yLpfI6aRMigQzc/edit?gid=0#gid=0" target="_blank" rel="noreferrer">restaurant spreadsheet</a>.</p>
 
+      <div class="map-filters">
+        <label>
+          <span class="filter-label">Cuisine</span>
+          <select id="filter-cuisine" aria-label="Filter by cuisine">
+            <option value="">All</option>
+          </select>
+        </label>
+        <label>
+          <span class="filter-label">Cuisine type</span>
+          <select id="filter-cuisine-type" aria-label="Filter by cuisine type">
+            <option value="">All</option>
+          </select>
+        </label>
+        <label>
+          <span class="filter-label">Average price</span>
+          <select id="filter-price" aria-label="Filter by average price">
+            <option value="">All</option>
+          </select>
+        </label>
+      </div>
+
       <div id="food-map" aria-label="Map of restaurants mentioned in Goldfish spreadsheet"></div>
     </div>
   </main>
@@ -47,6 +68,80 @@
         attribution: "&copy; OpenStreetMap contributors",
       }).addTo(map);
 
+      let allRestaurants = [];
+      let markersLayer = L.layerGroup().addTo(map);
+
+      function uniqueSorted(values) {
+        return [...new Set(values)].filter(Boolean).sort((a, b) => String(a).localeCompare(b));
+      }
+
+      function fillFilters(restaurants) {
+        const cuisines = uniqueSorted(restaurants.map((r) => r.cuisine));
+        const types = uniqueSorted(restaurants.map((r) => r.cuisine_type));
+        const prices = uniqueSorted(restaurants.map((r) => r.average_price));
+
+        const selCuisine = document.getElementById("filter-cuisine");
+        const selType = document.getElementById("filter-cuisine-type");
+        const selPrice = document.getElementById("filter-price");
+
+        cuisines.forEach((c) => {
+          const opt = document.createElement("option");
+          opt.value = c;
+          opt.textContent = c;
+          selCuisine.appendChild(opt);
+        });
+        types.forEach((t) => {
+          const opt = document.createElement("option");
+          opt.value = t;
+          opt.textContent = t;
+          selType.appendChild(opt);
+        });
+        prices.forEach((p) => {
+          const opt = document.createElement("option");
+          opt.value = p;
+          opt.textContent = p;
+          selPrice.appendChild(opt);
+        });
+      }
+
+      function matchesFilters(r, cuisine, cuisineType, price) {
+        if (cuisine && (r.cuisine || "") !== cuisine) return false;
+        if (cuisineType && (r.cuisine_type || "") !== cuisineType) return false;
+        if (price && (r.average_price || "") !== price) return false;
+        return true;
+      }
+
+      function popupContent(r) {
+        const parts = [r.name];
+        if (r.city || r.country) parts.push([r.city, r.country].filter(Boolean).join(", "));
+        if (r.address) parts.push(r.address);
+        if (r.cuisine) parts.push("Cuisine: " + r.cuisine);
+        if (r.cuisine_type) parts.push("Type: " + r.cuisine_type);
+        if (r.average_price) parts.push("Price: " + r.average_price);
+        return "<strong>" + parts[0] + "</strong><br>" + parts.slice(1).join(" · ");
+      }
+
+      function applyFilters() {
+        const cuisine = document.getElementById("filter-cuisine").value;
+        const cuisineType = document.getElementById("filter-cuisine-type").value;
+        const price = document.getElementById("filter-price").value;
+
+        const filtered = allRestaurants.filter((r) =>
+          matchesFilters(r, cuisine, cuisineType, price)
+        );
+
+        markersLayer.clearLayers();
+        const bounds = [];
+        filtered.forEach((r) => {
+          const marker = L.marker([r.lat, r.lng]).addTo(markersLayer);
+          marker.bindPopup(popupContent(r));
+          bounds.push([r.lat, r.lng]);
+        });
+        if (bounds.length) {
+          map.fitBounds(bounds, { padding: [32, 32] });
+        }
+      }
+
       function loadRestaurants() {
         fetch("data/restaurants.json")
           .then((res) => {
@@ -54,20 +149,13 @@
             return res.json();
           })
           .then((restaurants) => {
-            const bounds = [];
-            restaurants.forEach((r) => {
-              const marker = L.marker([r.lat, r.lng]).addTo(map);
-              marker.bindPopup(
-                "<strong>" +
-                  r.name +
-                  "</strong><br>" +
-                  [r.city, r.country].filter(Boolean).join(", ")
-              );
-              bounds.push([r.lat, r.lng]);
-            });
-            if (bounds.length) {
-              map.fitBounds(bounds, { padding: [32, 32] });
-            }
+            allRestaurants = restaurants;
+            fillFilters(restaurants);
+            applyFilters();
+
+            document.getElementById("filter-cuisine").addEventListener("change", applyFilters);
+            document.getElementById("filter-cuisine-type").addEventListener("change", applyFilters);
+            document.getElementById("filter-price").addEventListener("change", applyFilters);
           })
           .catch((err) => console.error(err));
       }

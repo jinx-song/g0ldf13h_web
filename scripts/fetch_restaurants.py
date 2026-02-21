@@ -8,7 +8,6 @@ scheduled (e.g. via GitHub Actions) to auto-update when the spreadsheet changes.
 import csv
 import json
 import os
-import re
 import time
 from urllib.parse import quote
 from urllib.request import Request, urlopen
@@ -45,14 +44,27 @@ def parse_csv(csv_text):
         if not row or not any(cell.strip() for cell in row):
             continue
         # Skip header-like first row
-        if i == 0 and row and re.match(r"^(name|restaurant|title)$", (row[0] or "").strip(), re.I):
+        first = (row[0] or "").strip().lower()
+        if i == 0 and row and first in ("name", "restaurant", "title", "cuisine"):
             continue
         name = (row[0] or "").strip()
         if not name:
             continue
         country = (row[1] or "").strip() if len(row) > 1 else ""
         city = (row[2] or "").strip() if len(row) > 2 else ""
-        rows.append({"name": name, "country": country, "city": city})
+        address = (row[3] or "").strip() if len(row) > 3 else ""
+        cuisine = (row[4] or "").strip() if len(row) > 4 else ""
+        cuisine_type = (row[5] or "").strip() if len(row) > 5 else ""
+        average_price = (row[6] or "").strip() if len(row) > 6 else ""
+        rows.append({
+            "name": name,
+            "country": country,
+            "city": city,
+            "cuisine": cuisine,
+            "cuisine_type": cuisine_type,
+            "average_price": average_price,
+            "address": address,
+        })
     return rows
 
 
@@ -65,6 +77,10 @@ def geocode_city(country: str, city: str):
     query = ", ".join(filter(None, [city, country]))
     if not query:
         return None
+    return _nominatim_geocode(query)
+
+
+def _nominatim_geocode(query: str):
     try:
         url = (
             "https://nominatim.openstreetmap.org/search?"
@@ -83,18 +99,32 @@ def geocode_city(country: str, city: str):
     return None
 
 
+def geocode_restaurant(row):
+    """Use full address if present, otherwise city/country."""
+    address = (row.get("address") or "").strip()
+    if address:
+        coords = _nominatim_geocode(address)
+        if coords:
+            return coords
+    return geocode_city(row.get("country", ""), row.get("city", ""))
+
+
 def build_restaurants():
     csv_text = fetch_csv()
     rows = parse_csv(csv_text)
     out = []
     for r in rows:
-        lat_lon = geocode_city(r["country"], r["city"])
+        lat_lon = geocode_restaurant(r)
         if lat_lon is None:
             continue
         out.append({
             "name": r["name"],
             "country": r["country"],
             "city": r["city"],
+            "cuisine": r.get("cuisine", ""),
+            "cuisine_type": r.get("cuisine_type", ""),
+            "average_price": r.get("average_price", ""),
+            "address": r.get("address", ""),
             "lat": lat_lon[0],
             "lng": lat_lon[1],
         })
