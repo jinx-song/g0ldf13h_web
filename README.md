@@ -31,4 +31,4 @@ The Food page map is driven by **Python**: the script `scripts/fetch_restaurants
 - **Update the map manually:** from the repo root run  
   `python3 scripts/fetch_restaurants.py`  
   then commit and push `data/restaurants.json` if it changed.
-- **Auto-update:** a GitHub Action runs every 6 hours and on pushes that touch the script or workflow; it regenerates `data/restaurants.json` and commits it when the spreadsheet has new or changed rows. New cities/addresses are geocoded via OpenStreetMap Nominatim (rate-limited).
+- **Auto-update:** a GitHub Action runs every 6 hours and on pushes that touch the script or workflow; it regenerates `data/restaurants.json` and commits it when the spreadsheet has new or changed rows. New cities/addresses are geocoded via OpenStreetMap Nominatim (rate-limited). For the workflow to push commits, add a **Personal Access Token** as a repo secret: **Settings → Secrets and variables → Actions → New repository secret**, name it `GH_PAT`, and use a token with `repo` scope.

@@ -1,5 +1,6 @@
 # Auto-update restaurant map data from the Google Sheet.
 # Runs on a schedule and on push to main; commits data/restaurants.json if it changed.
+# Requires a repo secret: GH_PAT (Personal Access Token with repo scope) so the job can push.
 name: Update restaurant map
 
 on:
@@ -18,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
