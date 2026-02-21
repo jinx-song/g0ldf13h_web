@@ -1,16 +1,5 @@
 [
   {
-    "name": "Restaurant Name",
-    "country": "Country",
-    "city": "City",
-    "cuisine": "Cuisine",
-    "cuisine_type": "Cuisine Type",
-    "average_price": "Average Price",
-    "address": "Address",
-    "lat": 43.2616855,
-    "lng": -2.937186
-  },
-  {
     "name": "Golmok Market Bar",
     "country": "USA",
     "city": "Seattle",
