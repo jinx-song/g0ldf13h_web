@@ -43,9 +43,8 @@ def parse_csv(csv_text):
     for i, row in enumerate(reader):
         if not row or not any(cell.strip() for cell in row):
             continue
-        # Skip header-like first row
-        first = (row[0] or "").strip().lower()
-        if i == 0 and row and first in ("name", "restaurant", "title", "cuisine"):
+        # Always skip the first row (column labels / header)
+        if i == 0:
             continue
         name = (row[0] or "").strip()
         if not name:
